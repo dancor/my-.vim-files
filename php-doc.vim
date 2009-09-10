@@ -75,10 +75,18 @@ let g:pdv_cfg_CommentTail = " */"
 let g:pdv_cfg_CommentSingle = "//"
 
 " Default values
-let g:pdv_cfg_Type = "mixed"
+" this is easier for me to jump to when filling in the types
+"let g:pdv_cfg_Type = "mixed"
+let g:pdv_cfg_Type = "#"
 let g:pdv_cfg_Package = ""
 let g:pdv_cfg_Version = "$id$"
-let g:pdv_cfg_Author = "Tobias Schlitt <toby@php.net>"
+"let g:pdv_cfg_Author = "Tobias Schlitt <toby@php.net>"
+" if you just want unixname
+let g:pdv_cfg_Author = substitute(system("whoami"), "\n$", "", "")
+" if you want full name and email
+"let g:pdv_cfg_Author = system('finger "$(whoami)" | head -n1 |
+  \awk ''{for (i = 4; i <= NF; i++) printf "%s ", $i;
+  \printf "<%s@facebook.com>", $2}''')
 let g:pdv_cfg_Copyright = "1997-2005 The PHP Group"
 let g:pdv_cfg_License = "PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}"
 
@@ -249,7 +257,9 @@ func! PhpDocFunc()
 	" Line for the comment to begin
 	let commentline = line (".") - 1
 
-	let l:name = substitute (getline ("."), '^\(.*\)\/\/.*$', '\1', "")
+  " repeating the name of the class/function in phpdoc is lame imho
+  "let l:name = substitute (getline ("."), '^\(.*\)\/\/.*$', '\1', "")
+	let l:name = ""
 
     "exe g:pdv_cfg_BOL . "DEBUG:" . name. g:pdv_cfg_EOL
 
@@ -311,8 +321,9 @@ func! PhpDocFunc()
         exe l:txtBOL . g:pdv_cfg_Commentn . "@final" . g:pdv_cfg_EOL
     endif
     if l:scope != ""
-    	exe l:txtBOL . g:pdv_cfg_Commentn . "@access " . l:scope . g:pdv_cfg_EOL
+    	"exe l:txtBOL . g:pdv_cfg_Commentn . "@access " . l:scope . g:pdv_cfg_EOL
     endif
+    exe l:txtBOL . g:pdv_cfg_Commentn . "@author " . g:pdv_cfg_Author g:pdv_cfg_EOL
 	exe l:txtBOL . g:pdv_cfg_Commentn . "@return " . g:pdv_cfg_ReturnVal . g:pdv_cfg_EOL
 
 	" Close the comment block.
@@ -360,6 +371,7 @@ func! PhpDocVar()
     if l:scope != ""
         exe l:txtBOL . g:pdv_cfg_Commentn . "@access " . l:scope . g:pdv_cfg_EOL
     endif
+    exe l:txtBOL . g:pdv_cfg_Commentn . "@author " . g:pdv_cfg_Author g:pdv_cfg_EOL
 	
     " Close the comment block.
 	exe l:txtBOL . g:pdv_cfg_CommentTail . g:pdv_cfg_EOL
@@ -373,7 +385,9 @@ func! PhpDocClass()
 	" Line for the comment to begin
 	let commentline = line (".") - 1
 
-	let l:name = substitute (getline ("."), '^\(.*\)\/\/.*$', '\1', "")
+  " repeating the name of the class/function in phpdoc is lame imho
+	"let l:name = substitute (getline ("."), '^\(.*\)\/\/.*$', '\1', "")
+	let l:name = ""
 
     "exe g:pdv_cfg_BOL . "DEBUG:" . name. g:pdv_cfg_EOL
 
@@ -403,7 +417,7 @@ func! PhpDocClass()
 	exe l:txtBOL . g:pdv_cfg_Comment1 . l:classname . " " . g:pdv_cfg_EOL
     exe l:txtBOL . g:pdv_cfg_Commentn . g:pdv_cfg_EOL
     if l:extends != "" && l:extends != "implements"
-    	exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:extends . g:pdv_cfg_EOL
+    	"exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:extends . g:pdv_cfg_EOL
     endif
 
 	while (l:interfaces != ",") && (l:interfaces != "")
@@ -411,20 +425,20 @@ func! PhpDocClass()
 		let interface = substitute (l:interfaces, '\([^, ]*\) *, *\(.*\)', '\1', "")
 		" Remove this one from list
 		let l:interfaces = substitute (l:interfaces, '\([^, ]*\) *, *\(.*\)', '\2', "")
-		exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:interface . g:pdv_cfg_EOL
+		"exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:interface . g:pdv_cfg_EOL
 	endwhile
 
 	if l:abstract != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@abstract" . g:pdv_cfg_EOL
+        "exe l:txtBOL . g:pdv_cfg_Commentn . "@abstract" . g:pdv_cfg_EOL
     endif
 	if l:final != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@final" . g:pdv_cfg_EOL
+        "exe l:txtBOL . g:pdv_cfg_Commentn . "@final" . g:pdv_cfg_EOL
     endif
-	exe l:txtBOL . g:pdv_cfg_Commentn . "@package " . g:pdv_cfg_Package . g:pdv_cfg_EOL
-	exe l:txtBOL . g:pdv_cfg_Commentn . "@version " . g:pdv_cfg_Version . g:pdv_cfg_EOL
-	exe l:txtBOL . g:pdv_cfg_Commentn . "@copyright " . g:pdv_cfg_Copyright . g:pdv_cfg_EOL
+	"exe l:txtBOL . g:pdv_cfg_Commentn . "@package " . g:pdv_cfg_Package . g:pdv_cfg_EOL
+	"exe l:txtBOL . g:pdv_cfg_Commentn . "@version " . g:pdv_cfg_Version . g:pdv_cfg_EOL
+	"exe l:txtBOL . g:pdv_cfg_Commentn . "@copyright " . g:pdv_cfg_Copyright . g:pdv_cfg_EOL
 	exe l:txtBOL . g:pdv_cfg_Commentn . "@author " . g:pdv_cfg_Author g:pdv_cfg_EOL
-	exe l:txtBOL . g:pdv_cfg_Commentn . "@license " . g:pdv_cfg_License . g:pdv_cfg_EOL
+	"exe l:txtBOL . g:pdv_cfg_Commentn . "@license " . g:pdv_cfg_License . g:pdv_cfg_EOL
 
 	" Close the comment block.
 	exe l:txtBOL . g:pdv_cfg_CommentTail . g:pdv_cfg_EOL
